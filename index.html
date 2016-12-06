@@ -4,15 +4,31 @@
     <title>MVPong</title>
     <meta charset= "utf-8">
     <script src="scripts/socket.io.min.js"></script>
+    <script src="scripts/socketio.js"></script>
     <script src="scripts/xss.js"></script>
     <script src="scripts/phaser.js"></script>
     <script src="scripts/mvpong.js"></script>
     <script src="scripts/chat.js"></script>
+    <script src="scripts/rooms.js"></script>
     <link rel="stylesheet" type="text/css" href="style.css">
   </head>
   <body>
     <div id="mvpong"></div>
     <div id="chat">
+      <div id="room-selection">
+        <select id="join-room">
+          <option value="">Join a room...</option>
+        </select>
+      </div>
+      <div id="room-creation">
+        <input id="create-room" type="text" placeholder="Create a room..."></input>
+        <select id="create-room-player">
+          <option value="">Pick a side...</option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+        </select>
+        <input id="create-room-submit" type="submit" onclick="window.createRoom()">
+      </div>
 	    <div id="chat-messages"></div>
 	    <input id="chatbox" type="text" placeholder="Type your chat message...."></input>
 	    <input id="chatbox-submit" type="submit" onclick="window.submitChat()">
