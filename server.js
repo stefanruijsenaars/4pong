@@ -3,6 +3,18 @@ var io = require('socket.io')(server);
 var rooms = {};
 
 io.on('connection', function(client){
+
+  var getRoomList = function () {
+    var roomList = [];
+    for (var room in rooms) {
+      if (rooms[room].left || rooms[room].right) {
+        roomList.push(room);
+      }
+    }
+    return roomList;
+
+  };
+
   client.on('createRoom', function (data) {
     if (rooms[data.roomname] === undefined) {
       rooms[data.roomname] = {
@@ -13,7 +25,7 @@ io.on('connection', function(client){
     rooms[data.roomname][data.side] = data.username;
     rooms[data.roomname].host = data.username;
     io.emit('roomList', {
-      rooms: rooms
+      rooms: getRoomList()
     });
     client.emit('inviteToRoom', {
       roomname: data.roomname,
@@ -48,14 +60,8 @@ io.on('connection', function(client){
 
 
   client.on('getRoomList', function (data) {
-    var roomList = [];
-    for (var room in rooms) {
-      if (rooms[room].left || rooms[room].right) {
-        roomList.push(room);
-      }
-    }
     client.emit('roomList', {
-      rooms: roomList
+      rooms: getRoomList()
     });
   });
 
