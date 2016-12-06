@@ -62,6 +62,12 @@ mvpongState.prototype = {
   },
 
   create: function () {
+    var socket = io('http://localhost:8001');
+    socket.on('connect', function(){});
+    socket.on('event', function(data){});
+    socket.on('disconnect', function(){});
+    socket.emit('chat', {'message': 'hello'});
+
     this.setUpGraphics();
     this.setUpPhysics();
     this.setUpKeys();
@@ -258,3 +264,7 @@ mvpongState.prototype = {
 
 game.state.add('mvpong', mvpongState);
 game.state.start('mvpong');
+
+window.submitChat = function () {
+ alert(document.getElementById('chatbox').value);
+};

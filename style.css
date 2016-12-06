@@ -1,0 +1,28 @@
+#chat {
+  border-radius: 25px;
+  background: #aaa;
+  font-color: #000;
+  padding: 20px;
+  width: 400px;
+  height: 550px;
+  position: absolute;
+  left: 820px;
+  top: 5px;
+}
+
+#chat-messages {
+  width: 400px;
+  height: 500px;
+  background: #fff;
+}
+
+#chat-messages div {
+  font-family: 'Helvetica Neue';
+  padding: 5px;
+}
+
+#chatbox, #chatbox-submit {
+  position: relative;
+  left: 0px;
+  top: 10px;
+}

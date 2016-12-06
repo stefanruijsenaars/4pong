@@ -3,10 +3,18 @@
   <head>
     <title>MVPong</title>
     <meta charset= "utf-8">
+    <script src="scripts/socket.io.min.js"></script>
     <script src="scripts/phaser.js"></script>
     <script src="scripts/mvpong.js"></script>
+    <script src="scripts/chat.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
   </head>
   <body>
     <div id="mvpong"></div>
+    <div id="chat">
+	    <div id="chat-messages"></div>
+	    <input id="chatbox" type="text" placeholder="Type your chat message...."></input>
+	    <input id="chatbox-submit" type="submit" onclick="window.submitChat()">
+    </div>
   </body>
 </html>
