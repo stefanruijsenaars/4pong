@@ -1,9 +1,9 @@
 window.username = prompt('What is your name?', 'Anonymous');
 
-window.socket = io('http://localhost:8001');
+window.socket = io('http://104.236.47.47:8001');
 window.socket.on('connect', function(){});
 window.socket.on('chat', function(data){
-  document.getElementById('chat-messages').innerHTML += '<div><strong>' + data.username  + '</strong>: ' + data.message + '</div>';
+  document.getElementById('chat-messages').innerHTML += '<div><strong>' + data.username  + '</strong>: ' + filterXSS(data.message) + '</div>';
 });
 window.socket.on('disconnect', function(){});
 
