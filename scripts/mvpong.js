@@ -69,7 +69,9 @@ mvpongState.prototype = {
     this.sounds = {
       hit: game.add.audio('hit')
     };
-    this.playingAs = prompt('Who do you want to play as? Type left or right:');
+    while (this.playingAs != 'left' && this.playingAs != 'right') {
+      this.playingAs = prompt('Who do you want to play as? Type left or right:');
+    }
   },
 
   update: function () {
@@ -85,18 +87,21 @@ mvpongState.prototype = {
       if (data.player === this.playingAs) {
         return;
       }
-      console.log(data.position.x);
-      this.sprites.paddles[data.player].x = data.position.x;
-    });
+      console.log(data.position.y);
+      if (this.sprites.paddles[data.player] !== undefined) {
+        this.sprites.paddles[data.player].y = data.position.y;
+      }
+    }.bind(this));
   },
 
   emitPosition: function () {
     window.socket.emit('position', {
-      'player' : this.playingAs,
-      'position': {
-        'x': this.sprites.paddles[this.playingAs].y
+      player: this.playingAs,
+      position: {
+        y: this.sprites.paddles[this.playingAs].y
       }
     });
+    console.log(this.sprites.paddles[this.playingAs].y);
   },
 
   setUpKeys: function () {
