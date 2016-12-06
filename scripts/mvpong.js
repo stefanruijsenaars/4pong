@@ -22,16 +22,20 @@ var mvpongState = function (game) {
   this.dividerLine;
   this.sprites = {
     ball: undefined,
-    leftPaddle: undefined,
-    rightPaddle: undefined
+    paddles: {
+      left: undefined,
+      right: undefined
+    }
   };
-  this.leftPaddle = {
-    upKey: undefined,
-    downKey: undefined
-  };
-  this.rightPaddle = {
-    upKey: undefined,
-    downKey: undefined
+  this.paddles = {
+    left: {
+      upKey: undefined,
+      downKey: undefined
+    },
+    right: {
+      upKey: undefined,
+      downKey: undefined
+    }
   };
   this.groups = {
     paddle : undefined
@@ -54,12 +58,16 @@ mvpongState.prototype = {
     for (var key in graphics) {
       game.load.image(key, graphics[key].url);
     }
+    game.load.audio('hit', ['sounds/checkout.mp3']);
   },
 
   create: function () {
     this.setUpGraphics();
     this.setUpPhysics();
     this.setUpKeys();
+    this.sounds = {
+      hit: game.add.audio('hit')
+    };
   },
 
   update: function () {
@@ -69,10 +77,10 @@ mvpongState.prototype = {
   },
 
   setUpKeys: function () {
-    this.leftPaddle.upKey = game.input.keyboard.addKey(Phaser.Keyboard.F);
-    this.leftPaddle.downKey = game.input.keyboard.addKey(Phaser.Keyboard.V);
-    this.rightPaddle.upKey = game.input.keyboard.addKey(Phaser.Keyboard.J);
-    this.rightPaddle.downKey = game.input.keyboard.addKey(Phaser.Keyboard.N);
+    this.paddles.left.upKey = game.input.keyboard.addKey(Phaser.Keyboard.F);
+    this.paddles.left.downKey = game.input.keyboard.addKey(Phaser.Keyboard.V);
+    this.paddles.right.upKey = game.input.keyboard.addKey(Phaser.Keyboard.J);
+    this.paddles.right.downKey = game.input.keyboard.addKey(Phaser.Keyboard.N);
   },
 
   setUpPhysics: function () {
@@ -93,8 +101,8 @@ mvpongState.prototype = {
     this.groups.paddle.enableBody = true;
     this.groups.paddle.physicsBodyType = Phaser.Physics.ARCADE;
 
-    this.groups.paddle.add(this.sprites.leftPaddle);
-    this.groups.paddle.add(this.sprites.rightPaddle);
+    this.groups.paddle.add(this.sprites.paddles.left);
+    this.groups.paddle.add(this.sprites.paddles.right);
     this.groups.paddle.setAll('checkWorldBounds', true);
     this.groups.paddle.setAll('body.collideWorldBounds', true);
     this.groups.paddle.setAll('body.immovable', true);
@@ -121,28 +129,28 @@ mvpongState.prototype = {
   },
 
   leftPaddleHandler: function () {
-    if (this.leftPaddle.upKey.isDown) {
-      this.sprites.leftPaddle.body.velocity.y = -500;
-    } else if (this.leftPaddle.downKey.isDown) {
-      this.sprites.leftPaddle.body.velocity.y = 500;
+    if (this.paddles.left.upKey.isDown) {
+      this.sprites.paddles.left.body.velocity.y = -500;
+    } else if (this.paddles.left.downKey.isDown) {
+      this.sprites.paddles.left.body.velocity.y = 500;
     } else {
-      this.sprites.leftPaddle.body.velocity.y = 0;
+      this.sprites.paddles.left.body.velocity.y = 0;
     }
   },
 
   rightPaddleHandler: function () {
     if (window.options.ai === true) {
       // Dumb AI
-      if (Math.abs(this.sprites.rightPaddle.y - this.sprites.ball.y) < 25) {
-        this.sprites.rightPaddle.body.velocity.y = 0;
+      if (Math.abs(this.sprites.paddles.right.y - this.sprites.ball.y) < 25) {
+        this.sprites.paddles.right.body.velocity.y = 0;
       }
-      if (this.sprites.rightPaddle.y > this.sprites.ball.y) {
+      if (this.sprites.paddles.right.y > this.sprites.ball.y) {
         window.movingUp = true;
         setTimeout(function () {
           window.movingUp = undefined;
         }, 150);
         if (!window.movingDown) {
-          this.sprites.rightPaddle.body.velocity.y = -500;
+          this.sprites.paddles.right.body.velocity.y = -500;
         }
       } else {
         window.movingDown = true;
@@ -150,17 +158,16 @@ mvpongState.prototype = {
           window.movingDown = undefined;
         }, 150);
         if (!window.movingUp) {
-          this.sprites.rightPaddle.body.velocity.y = 500;
+          this.sprites.paddles.right.body.velocity.y = 500;
         }
       }
-
     } else {
-      if (this.rightPaddle.upKey.isDown) {
-        this.sprites.rightPaddle.body.velocity.y = -500;
-      } else if (this.rightPaddle.downKey.isDown) {
-        this.sprites.rightPaddle.body.velocity.y = 500;
+      if (this.paddles.right.upKey.isDown) {
+        this.sprites.paddles.right.body.velocity.y = -500;
+      } else if (this.paddles.right.downKey.isDown) {
+        this.sprites.paddles.right.body.velocity.y = 500;
       } else {
-        this.sprites.rightPaddle.body.velocity.y = 0;
+        this.sprites.paddles.right.body.velocity.y = 0;
       }
     }
   },
@@ -183,6 +190,7 @@ mvpongState.prototype = {
       }
     }
     game.physics.arcade.velocityFromRotation(radians, window.options.velocity, this.sprites.ball.body.velocity);
+    this.sounds.hit.play();
   },
 
   setUpGraphics: function () {
@@ -201,12 +209,12 @@ mvpongState.prototype = {
     this.sprites.ball.anchor.set(0.5, 0.5);
 
     // Set up left paddle sprite
-    this.sprites.leftPaddle = game.add.sprite(window.options.width/60, window.options.height/2, 'paddle');
-    this.sprites.leftPaddle.anchor.set(0.5, 0.5);
+    this.sprites.paddles.left = game.add.sprite(window.options.width/60, window.options.height/2, 'paddle');
+    this.sprites.paddles.left.anchor.set(0.5, 0.5);
 
     // Set up right paddle sprite
-    this.sprites.rightPaddle = game.add.sprite(window.options.width/60*59, window.options.height/2, 'paddle');
-    this.sprites.rightPaddle.anchor.set(0.5, 0.5);
+    this.sprites.paddles.right = game.add.sprite(window.options.width/60*59, window.options.height/2, 'paddle');
+    this.sprites.paddles.right.anchor.set(0.5, 0.5);
 
     // Set up scores
     this.scores.textFields.left = game.add.text(window.options.width/4, window.options.height/10, '0', window.options.font);
