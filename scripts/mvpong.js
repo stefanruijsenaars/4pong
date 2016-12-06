@@ -3,8 +3,7 @@ var options = {
   height: 600,
   velocity: 400,
   maxScore: 11,
-  font: {font: '50px Helvetica Neue', fill: '#FFFFFF', align: 'center'},
-  ai: false
+  font: {font: '30px Helvetica Neue', fill: '#FFFFFF', align: 'center'}
 };
 
 var graphics = {
@@ -22,6 +21,10 @@ var mvpongState = function (game) {
   this.isHost;
   this.playingAs;
   this.dividerLine;
+  this.ai = {
+    left: false,
+    right: false
+  }
   this.sprites = {
     ball: undefined,
     paddles: {
@@ -81,12 +84,35 @@ mvpongState.prototype = {
     */
   },
 
-  joinRoom: function (side, isHost) {
+  joinRoom: function (side, isHost, opponents) {
     this.messages.joinRoom.text = '';
+    this.messages.roomName = game.add.text(window.options.width/2,  window.options.height*0.1, 'Room: ' + window.currentRoom, window.options.font);
+    this.messages.roomName.anchor.set(0.5, 0.5);
     if (isHost) {
       this.isHost = true;
     }
     this.playingAs = side;
+    this.opponents = opponents;
+    if (this.opponents && this.opponents.length === 1) {
+      this.launchBall();
+    } else {
+      this.messages.joinRoom.text = 'Waiting for opponent...';
+    }
+    this.messages.addAI =  game.add.text(window.options.width/2,  window.options.height*0.7, 'Click to add a robot opponent!', window.options.font);
+    this.messages.addAI.anchor.set(0.5, 0.5);
+    this.messages.addAI.inputEnabled = true;
+    this.messages.addAI.events.onInputDown.add(this.onAIDown.bind(this), this);
+  },
+
+  onAIDown: function () {
+    if (this.playingAs === 'left') {
+      this.ai.right = true;
+    } else if (this.playingAs === 'right') {
+      this.ai.left = true;
+    }
+    this.messages.joinRoom.text = '';
+    this.messages.addAI.text = '';
+    this.updateScore();
     this.launchBall();
   },
 
@@ -173,26 +199,50 @@ mvpongState.prototype = {
   },
 
   leftPaddleHandler: function () {
-    if (this.paddles.left.upKey.isDown) {
-      this.sprites.paddles.left.body.velocity.y = -500;
-    } else if (this.paddles.left.downKey.isDown) {
-      this.sprites.paddles.left.body.velocity.y = 500;
+    if (this.ai.left === true) {
+       // Dumb AI
+      if (Math.abs(this.sprites.paddles.left.y - this.sprites.ball.y) < 10) {
+        this.sprites.paddles.left.body.velocity.y = 0;
+      }
+      if (this.sprites.paddles.left.y > this.sprites.ball.y) {
+        window.movingUp = true;
+        setTimeout(function () {
+          window.movingUp = undefined;
+        }, 130);
+        if (!window.movingDown) {
+          this.sprites.paddles.left.body.velocity.y = -500;
+        }
+      } else {
+        window.movingDown = true;
+        setTimeout(function () {
+          window.movingDown = undefined;
+        }, 150);
+        if (!window.movingUp) {
+          this.sprites.paddles.left.body.velocity.y = 500;
+        }
+      }
     } else {
-      this.sprites.paddles.left.body.velocity.y = 0;
+      if (this.paddles.left.upKey.isDown) {
+        this.sprites.paddles.left.body.velocity.y = -500;
+      } else if (this.paddles.left.downKey.isDown) {
+        this.sprites.paddles.left.body.velocity.y = 500;
+      } else {
+        this.sprites.paddles.left.body.velocity.y = 0;
+      }
     }
   },
 
   rightPaddleHandler: function () {
-    if (window.options.ai === true) {
+    if (this.ai.right === true) {
       // Dumb AI
-      if (Math.abs(this.sprites.paddles.right.y - this.sprites.ball.y) < 25) {
+      if (Math.abs(this.sprites.paddles.right.y - this.sprites.ball.y) < 10) {
         this.sprites.paddles.right.body.velocity.y = 0;
       }
       if (this.sprites.paddles.right.y > this.sprites.ball.y) {
         window.movingUp = true;
         setTimeout(function () {
           window.movingUp = undefined;
-        }, 150);
+        }, 130);
         if (!window.movingDown) {
           this.sprites.paddles.right.body.velocity.y = -500;
         }
@@ -235,6 +285,12 @@ mvpongState.prototype = {
     }
     game.physics.arcade.velocityFromRotation(radians, window.options.velocity, this.sprites.ball.body.velocity);
     this.sounds.hit.play();
+
+    document.body.classList.add("shake");
+    setTimeout(function () {
+      document.body.classList.remove("shake");
+    }, 500);
+
   },
 
   setUpGraphics: function () {
@@ -266,7 +322,8 @@ mvpongState.prototype = {
     this.scores.textFields.right = game.add.text(window.options.width/4*3, window.options.height/10, '', window.options.font);
     this.scores.textFields.right.anchor.set(0.5, 0.5);
 
-    this.messages.joinRoom = game.add.text(window.options.width/2,  window.options.height/2, 'Please join a room!', window.options.font);
+    // Ask user to join a room.
+    this.messages.joinRoom = game.add.text(window.options.width/2,  window.options.height*0.3, 'Please join a room...', window.options.font);
     this.messages.joinRoom.anchor.set(0.5, 0.5);
   },
 
@@ -299,6 +356,16 @@ mvpongState.prototype = {
   updateScore: function () {
     this.scores.textFields.left.text = this.scores.score.left;
     this.scores.textFields.right.text = this.scores.score.right;
+    if (this.playingAs === 'left') {
+      this.scores.textFields.left.text = 'You: ' + this.scores.textFields.left.text;
+    } else if (this.playingAs === 'right') {
+      this.scores.textFields.right.text = 'You: ' + this.scores.textFields.right.text;
+    }
+    if (this.ai.left === true) {
+      this.scores.textFields.left.text = 'Robot: ' + this.scores.textFields.left.text;
+    } else if (this.ai.right === true) {
+      this.scores.textFields.right.text = 'Robot: ' + this.scores.textFields.right.text;
+    }
   }
 };
 

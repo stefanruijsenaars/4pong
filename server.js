@@ -18,7 +18,8 @@ io.on('connection', function(client){
     client.emit('inviteToRoom', {
       roomname: data.roomname,
       side: data.side,
-      isHost: true
+      isHost: true,
+      opponents: []
     });
   });
 
@@ -28,8 +29,10 @@ io.on('connection', function(client){
       return;
     }
     if (rooms[data.roomname].left === undefined) {
+      opponents = {right: rooms[data.roomname].right};
       side = left;
     } else if (rooms[data.roomname].right === undefined) {
+      opponents = {left: rooms[data.roomname].left};
       side = right;
     } else {
       return;
@@ -37,15 +40,22 @@ io.on('connection', function(client){
     client.emit('inviteToRoom', {
       roomname: data.roomname,
       side: side,
-      isHost: false
+      isHost: false,
+      opponents: opponents
     });
     rooms[data.roomname][side] = data.username;
   });
 
 
   client.on('getRoomList', function (data) {
+    var roomList = [];
+    for (var room in rooms)_ {
+      if (rooms[room].left || rooms[room].right) {
+        roomList.push(room);
+      }
+    }
     client.emit('roomList', {
-      rooms: rooms
+      rooms: roomList
     });
   });
 

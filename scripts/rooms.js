@@ -20,7 +20,7 @@ window.socket.on('inviteToRoom', function (data) {
 
 window.createRoom = function () {
   var side = document.getElementById('create-room-player').value;
-  if (side !== 'left' && site !== 'right') {
+  if (side !== 'left' && side !== 'right') {
     alert('Please pick a side!');
     return;
   }
