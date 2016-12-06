@@ -101,7 +101,6 @@ mvpongState.prototype = {
         y: this.sprites.paddles[this.playingAs].y
       }
     });
-    console.log(this.sprites.paddles[this.playingAs].y);
   },
 
   setUpKeys: function () {

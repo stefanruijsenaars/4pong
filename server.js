@@ -10,6 +10,12 @@ io.on('connection', function(client){
     });
   });
 
+  client.on('getRoomList', function (data) {
+    client.emit('roomList', {
+      rooms: rooms
+    });
+  });
+
   client.on('chat', function(data){
     io.emit('chat', data);
   });
@@ -20,9 +26,7 @@ io.on('connection', function(client){
 
   client.on('disconnect', function(){});
 
-  client.on('connect', function(){
-    client.emit('roomList', {rooms: rooms});
-  });
+  client.on('connect', function(){});
 
 });
 server.listen(8001);
