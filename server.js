@@ -4,6 +4,9 @@ io.on('connection', function(client){
   client.on('chat', function(data){
     client.emit('chat', data);
   });
+  client.on('position', function(data) {
+    console.log(data);
+  })
   client.on('disconnect', function(){});
 });
 server.listen(8001);

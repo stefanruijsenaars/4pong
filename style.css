@@ -16,7 +16,7 @@
   background: #fff;
 }
 
-#chat-messages div {
+#chat-messages div, #chat input {
   font-family: 'Helvetica Neue';
   padding: 5px;
 }

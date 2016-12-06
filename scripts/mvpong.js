@@ -4,7 +4,7 @@ var options = {
   velocity: 400,
   maxScore: 11,
   font: {font: '50px Helvetica Neue', fill: '#FFFFFF', align: 'center'},
-  ai: true
+  ai: false
 };
 
 var graphics = {
@@ -19,6 +19,7 @@ var graphics = {
 var game = new Phaser.Game(options.width, options.height, Phaser.AUTO, 'mvpong');
 
 var mvpongState = function (game) {
+  this.playingAs;
   this.dividerLine;
   this.sprites = {
     ball: undefined,
@@ -62,24 +63,40 @@ mvpongState.prototype = {
   },
 
   create: function () {
-    var socket = io('http://localhost:8001');
-    socket.on('connect', function(){});
-    socket.on('event', function(data){});
-    socket.on('disconnect', function(){});
-    socket.emit('chat', {'message': 'hello'});
-
     this.setUpGraphics();
     this.setUpPhysics();
     this.setUpKeys();
     this.sounds = {
       hit: game.add.audio('hit')
     };
+    this.playingAs = prompt('Who do you want to play as? Type left or right:');
   },
 
   update: function () {
     this.leftPaddleHandler();
     this.rightPaddleHandler();
     game.physics.arcade.overlap(this.groups.paddle, this.sprites.ball, this.paddleOverlapHandler, null, this);
+    this.emitPosition();
+    this.updatePositions();
+  },
+
+  updatePositions: function () {
+    window.socket.on('position', function (data) {
+      if (data.player === this.playingAs) {
+        return;
+      }
+      console.log(data.position.x);
+      this.sprites.paddles[data.player].x = data.position.x;
+    });
+  },
+
+  emitPosition: function () {
+    window.socket.emit('position', {
+      'player' : this.playingAs,
+      'position': {
+        'x': this.sprites.paddles[this.playingAs].y
+      }
+    });
   },
 
   setUpKeys: function () {
@@ -264,7 +281,3 @@ mvpongState.prototype = {
 
 game.state.add('mvpong', mvpongState);
 game.state.start('mvpong');
-
-window.submitChat = function () {
- alert(document.getElementById('chatbox').value);
-};
