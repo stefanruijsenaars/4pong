@@ -3,7 +3,8 @@ var options = {
   height: 600,
   velocity: 400,
   maxScore: 11,
-  font: {font: '50px Helvetica Neue', fill: '#FFFFFF', align: 'center'}
+  font: {font: '50px Helvetica Neue', fill: '#FFFFFF', align: 'center'},
+  ai: true
 };
 
 var graphics = {
@@ -95,8 +96,8 @@ mvpongState.prototype = {
     this.groups.paddle.add(this.sprites.leftPaddle);
     this.groups.paddle.add(this.sprites.rightPaddle);
     this.groups.paddle.setAll('checkWorldBounds', true);
-    this.groups.paddle.setAll('collideWorldBounds', true);
-    this.groups.paddle.setAll('immovable', true);
+    this.groups.paddle.setAll('body.collideWorldBounds', true);
+    this.groups.paddle.setAll('body.immovable', true);
 
     game.physics.arcade.checkCollision.left = false;
     game.physics.arcade.checkCollision.right = false;
@@ -130,12 +131,25 @@ mvpongState.prototype = {
   },
 
   rightPaddleHandler: function () {
-    if (this.rightPaddle.upKey.isDown) {
-      this.sprites.rightPaddle.body.velocity.y = -500;
-    } else if (this.rightPaddle.downKey.isDown) {
-      this.sprites.rightPaddle.body.velocity.y = 500;
+    if (window.options.ai === true) {
+      // Dumb AI
+      if (Math.abs(this.sprites.rightPaddle.x - this.sprites.ball.x) < 30) {
+        this.sprites.rightPaddle.body.velocity.y = 0;
+      }
+      else if (this.sprites.rightPaddle.y > this.sprites.ball.y) {
+        this.sprites.rightPaddle.body.velocity.y = -500;
+      } else {
+        this.sprites.rightPaddle.body.velocity.y = 500;
+      }
+
     } else {
-      this.sprites.rightPaddle.body.velocity.y = 0;
+      if (this.rightPaddle.upKey.isDown) {
+        this.sprites.rightPaddle.body.velocity.y = -500;
+      } else if (this.rightPaddle.downKey.isDown) {
+        this.sprites.rightPaddle.body.velocity.y = 500;
+      } else {
+        this.sprites.rightPaddle.body.velocity.y = 0;
+      }
     }
   },
 
