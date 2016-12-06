@@ -49,7 +49,7 @@ io.on('connection', function(client){
 
   client.on('getRoomList', function (data) {
     var roomList = [];
-    for (var room in rooms)_ {
+    for (var room in rooms) {
       if (rooms[room].left || rooms[room].right) {
         roomList.push(room);
       }
