@@ -19,6 +19,7 @@ var graphics = {
 var game = new Phaser.Game(options.width, options.height, Phaser.AUTO, 'mvpong');
 
 var mvpongState = function (game) {
+  this.isHost;
   this.playingAs;
   this.dividerLine;
   this.sprites = {
@@ -52,6 +53,10 @@ var mvpongState = function (game) {
       right: 0
     }
   }
+
+  this.messages = {
+    joinRoom: ''
+  };
 };
 
 mvpongState.prototype = {
@@ -69,17 +74,30 @@ mvpongState.prototype = {
     this.sounds = {
       hit: game.add.audio('hit')
     };
+    /*
     while (this.playingAs != 'left' && this.playingAs != 'right') {
       this.playingAs = prompt('Who do you want to play as? Type left or right:');
     }
+    */
+  },
+
+  joinRoom: function (side, isHost) {
+    this.messages.joinRoom.text = '';
+    if (isHost) {
+      this.isHost = true;
+    }
+    this.playingAs = side;
+    this.launchBall();
   },
 
   update: function () {
-    this.leftPaddleHandler();
-    this.rightPaddleHandler();
-    game.physics.arcade.overlap(this.groups.paddle, this.sprites.ball, this.paddleOverlapHandler, null, this);
-    this.emitPosition();
-    this.updatePositions();
+    if (window.currentRoom !== undefined) {
+      this.leftPaddleHandler();
+      this.rightPaddleHandler();
+      game.physics.arcade.overlap(this.groups.paddle, this.sprites.ball, this.paddleOverlapHandler, null, this);
+      this.emitPosition();
+      this.updatePositions();
+    }
   },
 
   updatePositions: function () {
@@ -122,7 +140,6 @@ mvpongState.prototype = {
     this.sprites.ball.body.bounce.set(1);
     this.sprites.ball.body.immovable = true;
     this.sprites.ball.events.onOutOfBounds.add(this.ballOutsideHandler, this);
-    this.launchBall();
 
     this.groups.paddle = game.add.group();
     this.groups.paddle.enableBody = true;
@@ -244,10 +261,13 @@ mvpongState.prototype = {
     this.sprites.paddles.right.anchor.set(0.5, 0.5);
 
     // Set up scores
-    this.scores.textFields.left = game.add.text(window.options.width/4, window.options.height/10, '0', window.options.font);
+    this.scores.textFields.left = game.add.text(window.options.width/4, window.options.height/10, '', window.options.font);
     this.scores.textFields.left.anchor.set(0.5, 0.5);
-    this.scores.textFields.right = game.add.text(window.options.width/4*3, window.options.height/10, '0', window.options.font);
+    this.scores.textFields.right = game.add.text(window.options.width/4*3, window.options.height/10, '', window.options.font);
     this.scores.textFields.right.anchor.set(0.5, 0.5);
+
+    this.messages.joinRoom = game.add.text(window.options.width/2,  window.options.height/2, 'Please join a room!', window.options.font);
+    this.messages.joinRoom.anchor.set(0.5, 0.5);
   },
 
   ballOutsideHandler: function () {
