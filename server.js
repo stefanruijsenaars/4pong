@@ -5,8 +5,8 @@ var rooms = [];
 io.on('connection', function(client){
   client.on('createRoom', function (data) {
     rooms.push(data.roomname)
-    io.emit('roomList', function () {
-      return {rooms: rooms};
+    io.emit('roomList', {
+      rooms: rooms
     });
   });
 
@@ -21,9 +21,7 @@ io.on('connection', function(client){
   client.on('disconnect', function(){});
 
   client.on('connect', function(){
-    client.emit('roomList', function () {
-      return {rooms: rooms};
-    })
+    client.emit('roomList', {rooms: rooms});
   });
 
 });
