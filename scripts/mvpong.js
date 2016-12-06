@@ -133,13 +133,25 @@ mvpongState.prototype = {
   rightPaddleHandler: function () {
     if (window.options.ai === true) {
       // Dumb AI
-      if (Math.abs(this.sprites.rightPaddle.x - this.sprites.ball.x) < 30) {
+      if (Math.abs(this.sprites.rightPaddle.y - this.sprites.ball.y) < 25) {
         this.sprites.rightPaddle.body.velocity.y = 0;
       }
-      else if (this.sprites.rightPaddle.y > this.sprites.ball.y) {
-        this.sprites.rightPaddle.body.velocity.y = -500;
+      if (this.sprites.rightPaddle.y > this.sprites.ball.y) {
+        window.movingUp = true;
+        setTimeout(function () {
+          window.movingUp = undefined;
+        }, 150);
+        if (!window.movingDown) {
+          this.sprites.rightPaddle.body.velocity.y = -500;
+        }
       } else {
-        this.sprites.rightPaddle.body.velocity.y = 500;
+        window.movingDown = true;
+        setTimeout(function () {
+          window.movingDown = undefined;
+        }, 150);
+        if (!window.movingUp) {
+          this.sprites.rightPaddle.body.velocity.y = 500;
+        }
       }
 
     } else {
