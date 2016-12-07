@@ -396,7 +396,13 @@ mvpongState.prototype = {
 
   // Host starts the game when the room is full.
   checkStart: function () {
-    if (this.isHost && !this.isStarted && this.opponents && this.opponents.length === 1) {
+    var otherSide;
+    if (this.playingAs === 'left') {
+      otherSide = 'right';
+    } else if (this.playingAs === 'right') {
+      otherSide = 'left';
+    }
+    if (this.isHost && !this.isStarted && this.opponents && this.opponents[otherSide]) {
       this.messages.joinRoom.text = '';
       this.isStarted = true;
       launchBall();
