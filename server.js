@@ -27,12 +27,14 @@ io.on('connection', function(client){
     io.emit('roomList', {
       rooms: getRoomList()
     });
-    client.emit('inviteToRoom', {
+    var info = {
       roomname: data.roomname,
       side: data.side,
       isHost: true,
       opponents: []
-    });
+    };
+    console.log('inviting to Room:' + info.toString());
+    client.emit('inviteToRoom', info);
   });
 
   client.on('joinRoom', function (data) {
@@ -49,12 +51,14 @@ io.on('connection', function(client){
     } else {
       return;
     }
-    client.emit('inviteToRoom', {
+    var info = {
       roomname: data.roomname,
       side: side,
       isHost: false,
       opponents: opponents
-    });
+    };
+    client.emit('inviteToRoom', info);
+    console.log('inviting to Room:' + info.toString());
     rooms[data.roomname][side] = data.username;
   });
 
@@ -63,6 +67,10 @@ io.on('connection', function(client){
     client.emit('roomList', {
       rooms: getRoomList()
     });
+  });
+
+  client.on('acceptedInvite', function (data) {
+    client.broadcast.emit('acceptedInvite', data);
   });
 
   client.on('chat', function(data){

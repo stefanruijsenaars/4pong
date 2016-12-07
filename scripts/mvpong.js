@@ -79,6 +79,7 @@ mvpongState.prototype = {
       hit: game.add.audio('hit')
     };
     if (!this.isHost) {
+      // Register score update event handler.
       window.socket.on('score', function (data) {
         if (data.roomname === window.currentRoom) {
           this.scores.score.left = data.leftScore;
