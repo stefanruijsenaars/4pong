@@ -18,6 +18,13 @@ window.socket.on('inviteToRoom', function (data) {
   state.acceptRoomInvite(data.side, data.isHost, data.opponents);
 });
 
+window.socket.on('acceptedInvite', function (data) {
+  var state = window.game.state.getCurrentState();
+  if (window.currentRoom === data.roomname && data.side !== state.playingAs) {
+    state.opponents[data.side] = data.username;
+  }
+});
+
 window.createRoom = function () {
   var side = document.getElementById('create-room-player').value;
   if (side !== 'left' && side !== 'right') {

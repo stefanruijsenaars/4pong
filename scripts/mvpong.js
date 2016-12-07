@@ -18,6 +18,7 @@ var graphics = {
 var game = new Phaser.Game(options.width, options.height, Phaser.AUTO, 'mvpong');
 
 var mvpongState = function (game) {
+  this.isStarted;
   this.isHost;
   this.playingAs;
   this.dividerLine;
@@ -95,11 +96,12 @@ mvpongState.prototype = {
     this.isHost = isHost;
     this.playingAs = side;
     this.opponents = opponents;
-    if (this.opponents && this.opponents.length === 1 && this.isHost) {
-      this.launchBall();
-    } else {
-      this.messages.joinRoom.text = 'Waiting for opponent...';
-    }
+    this.messages.joinRoom.text = 'Waiting for opponent...';
+    window.socket.emit('acceptedInvite', {
+      username: window.username,
+      roomname: window.currentRoom,
+      side: side
+    });
     if (this.isHost) {
       this.messages.addAI =  game.add.text(window.options.width/2,  window.options.height*0.7, 'Click to add a robot opponent!', window.options.font);
       this.messages.addAI.anchor.set(0.5, 0.5);
@@ -128,6 +130,8 @@ mvpongState.prototype = {
       this.emitPosition();
       if (!this.isHost) {
         this.updatePositions();
+      } else {
+        this.checkStart();
       }
     }
   },
@@ -387,7 +391,17 @@ mvpongState.prototype = {
     } else if (this.ai.right === true) {
       this.scores.textFields.right.text = 'Robot: ' + this.scores.textFields.right.text;
     }
+  },
+
+  // Host starts the game when the room is full.
+  checkStart: function () {
+    if (this.isHost && !this.isStarted && this.opponents && this.opponents.length === 1) {
+      this.messages.joinRoom.text = '';
+      this.isStarted = true;
+      launchBall();
+    }
   }
+
 };
 
 game.state.add('mvpong', mvpongState);
