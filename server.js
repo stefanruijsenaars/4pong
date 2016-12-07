@@ -83,6 +83,7 @@ io.on('connection', function(client){
   });
 
   client.on('score', function(data) {
+    console.log('broadcasting scores: ' + JSON.stringify(data));
     client.broadcast.emit('score', data);
   });
 
