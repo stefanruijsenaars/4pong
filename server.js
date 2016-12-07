@@ -70,6 +70,7 @@ io.on('connection', function(client){
   });
 
   client.on('acceptedInvite', function (data) {
+    console.log('accepted invite: '+ data.toString());
     client.broadcast.emit('acceptedInvite', data);
   });
 
