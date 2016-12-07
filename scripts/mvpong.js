@@ -389,12 +389,12 @@ mvpongState.prototype = {
     if (this.playingAs === 'left') {
       this.scores.textFields.left.text = 'You: ' + this.scores.textFields.left.text;
       if (this.opponents.right) {
-        this.scores.textFields.right.text = filterXSS(this.opponents.right) + ': ' + this.scores.textFields.left.text;
+        this.scores.textFields.right.text = filterXSS(this.opponents.right) + ': ' + this.scores.textFields.right.text;
       }
     } else if (this.playingAs === 'right') {
       this.scores.textFields.right.text = 'You: ' + this.scores.textFields.right.text;
       if (this.opponents.left) {
-        this.scores.textFields.left.text = filterXSS(this.opponents.right) + ': ' + this.scores.textFields.left.text;
+        this.scores.textFields.left.text = filterXSS(this.opponents.left) + ': ' + this.scores.textFields.left.text;
       }
     }
     if (this.ai.left === true) {
