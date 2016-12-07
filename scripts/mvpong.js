@@ -86,7 +86,7 @@ mvpongState.prototype = {
           this.scores.score.right = data.rightScore;
           this.updateScore();
         }
-      });
+      }.bind(this));
     }
   },
 
