@@ -416,6 +416,7 @@ mvpongState.prototype = {
       this.messages.joinRoom.text = '';
       this.messages.addAI.text = '';
       this.isStarted = true;
+      this.updateScore();
       this.launchBall();
     }
   }
