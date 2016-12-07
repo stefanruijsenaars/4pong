@@ -33,7 +33,7 @@ io.on('connection', function(client){
       isHost: true,
       opponents: []
     };
-    console.log('inviting to Room:' + info.toString());
+    console.log('inviting to Room:' + JSON.stringify(info));
     client.emit('inviteToRoom', info);
   });
 
@@ -58,7 +58,7 @@ io.on('connection', function(client){
       opponents: opponents
     };
     client.emit('inviteToRoom', info);
-    console.log('inviting to Room:' + info.toString());
+    console.log('inviting to Room:' + JSON.stringify(info));
     rooms[data.roomname][side] = data.username;
   });
 
@@ -70,7 +70,7 @@ io.on('connection', function(client){
   });
 
   client.on('acceptedInvite', function (data) {
-    console.log('accepted invite: '+ data.toString());
+    console.log('accepted invite: '+ JSON.stringify(data));
     client.broadcast.emit('acceptedInvite', data);
   });
 
