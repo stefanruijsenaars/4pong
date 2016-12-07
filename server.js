@@ -80,7 +80,11 @@ io.on('connection', function(client){
 
   client.on('position', function(data) {
     client.broadcast.emit('position', data);
-  })
+  });
+
+  client.on('score', function(data) {
+    client.broadcast.emit('score', data);
+  });
 
   client.on('disconnect', function(){});
 

@@ -408,6 +408,7 @@ mvpongState.prototype = {
     }
     if (this.isHost && !this.isStarted && this.opponents && this.opponents[otherSide]) {
       this.messages.joinRoom.text = '';
+      this.messages.addAI.text = '';
       this.isStarted = true;
       this.launchBall();
     }
