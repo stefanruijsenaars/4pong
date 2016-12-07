@@ -77,11 +77,15 @@ mvpongState.prototype = {
     this.sounds = {
       hit: game.add.audio('hit')
     };
-    /*
-    while (this.playingAs != 'left' && this.playingAs != 'right') {
-      this.playingAs = prompt('Who do you want to play as? Type left or right:');
+    if (!this.isHost) {
+      window.socket.on('score', function (data) {
+        if (data.roomname === window.currentRoom) {
+          this.scores.score.left = data.leftScore;
+          this.scores.score.right = data.rightScore;
+          this.updateScore();
+        }
+      });
     }
-    */
   },
 
   joinRoom: function (side, isHost, opponents) {
@@ -93,15 +97,17 @@ mvpongState.prototype = {
     }
     this.playingAs = side;
     this.opponents = opponents;
-    if (this.opponents && this.opponents.length === 1) {
+    if (this.opponents && this.opponents.length === 1 && this.isHost) {
       this.launchBall();
     } else {
       this.messages.joinRoom.text = 'Waiting for opponent...';
     }
-    this.messages.addAI =  game.add.text(window.options.width/2,  window.options.height*0.7, 'Click to add a robot opponent!', window.options.font);
-    this.messages.addAI.anchor.set(0.5, 0.5);
-    this.messages.addAI.inputEnabled = true;
-    this.messages.addAI.events.onInputDown.add(this.onAIDown.bind(this), this);
+    if (this.isHost) {
+      this.messages.addAI =  game.add.text(window.options.width/2,  window.options.height*0.7, 'Click to add a robot opponent!', window.options.font);
+      this.messages.addAI.anchor.set(0.5, 0.5);
+      this.messages.addAI.inputEnabled = true;
+      this.messages.addAI.events.onInputDown.add(this.onAIDown.bind(this), this);
+    }
   },
 
   onAIDown: function () {
@@ -131,9 +137,12 @@ mvpongState.prototype = {
       if (data.player === this.playingAs) {
         return;
       }
-      console.log(data.position.y);
       if (this.sprites.paddles[data.player] !== undefined) {
         this.sprites.paddles[data.player].y = data.position.y;
+      }
+      if (this.sprites.ball.x !== undefined && this.sprites.ball.y !== undefined) {
+        this.sprites.ball.x = data.ball.x;
+        this.sprites.ball.y = data.ball.y;
       }
     }.bind(this));
   },
@@ -143,6 +152,10 @@ mvpongState.prototype = {
       player: this.playingAs,
       position: {
         y: this.sprites.paddles[this.playingAs].y
+      },
+      ball: {
+        x: this.sprites.ball.x,
+        y: this.sprites.ball.y
       }
     });
   },
@@ -328,14 +341,20 @@ mvpongState.prototype = {
   },
 
   ballOutsideHandler: function () {
-    if (this.sprites.ball.x <= 0) {
-      this.scores.score.right++;
+    if (this.isHost) {
+      if (this.sprites.ball.x <= 0) {
+        this.scores.score.right++;
+      }
+      if (this.sprites.ball.x >= window.options.width) {
+        this.scores.score.left++;
+      }
+      window.socket.emit('score', {
+        roomname: window.currentRoom,
+        leftScore: this.scores.score.left,
+        rightScore: this.scores.score.right
+      });
+      this.updateScore();
     }
-    if (this.sprites.ball.x >= window.options.width) {
-      this.scores.score.left++;
-    }
-
-    this.updateScore();
 
     if (this.scores.score.left === window.options.maxScore) {
       alert('left wins!');
@@ -350,7 +369,9 @@ mvpongState.prototype = {
       this.updateScore();
     }
 
-    this.launchBall();
+    if (this.isHost) {
+      this.launchBall();
+    }
   },
 
   updateScore: function () {
@@ -368,7 +389,6 @@ mvpongState.prototype = {
     }
   }
 };
-
 
 game.state.add('mvpong', mvpongState);
 game.state.start('mvpong');

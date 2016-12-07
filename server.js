@@ -42,10 +42,10 @@ io.on('connection', function(client){
     }
     if (rooms[data.roomname].left === undefined) {
       opponents = {right: rooms[data.roomname].right};
-      side = left;
+      side = 'left';
     } else if (rooms[data.roomname].right === undefined) {
       opponents = {left: rooms[data.roomname].left};
-      side = right;
+      side = 'right';
     } else {
       return;
     }
