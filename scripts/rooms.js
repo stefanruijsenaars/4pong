@@ -15,7 +15,7 @@ window.socket.on('roomList', function (data) {
 window.socket.on('inviteToRoom', function (data) {
   window.currentRoom = data.roomname;
   var state = window.game.state.getCurrentState();
-  state.joinRoom(data.side, data.isHost);
+  state.acceptRoomInvite(data.side, data.isHost, data.opponents);
 });
 
 window.createRoom = function () {

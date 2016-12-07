@@ -88,13 +88,11 @@ mvpongState.prototype = {
     }
   },
 
-  joinRoom: function (side, isHost, opponents) {
+  acceptRoomInvite: function (side, isHost, opponents) {
     this.messages.joinRoom.text = '';
     this.messages.roomName = game.add.text(window.options.width/2,  window.options.height*0.1, 'Room: ' + window.currentRoom, window.options.font);
     this.messages.roomName.anchor.set(0.5, 0.5);
-    if (isHost) {
-      this.isHost = true;
-    }
+    this.isHost = isHost;
     this.playingAs = side;
     this.opponents = opponents;
     if (this.opponents && this.opponents.length === 1 && this.isHost) {
@@ -128,7 +126,9 @@ mvpongState.prototype = {
       this.rightPaddleHandler();
       game.physics.arcade.overlap(this.groups.paddle, this.sprites.ball, this.paddleOverlapHandler, null, this);
       this.emitPosition();
-      this.updatePositions();
+      if (!this.isHost) {
+        this.updatePositions();
+      }
     }
   },
 
