@@ -97,7 +97,11 @@ mvpongState.prototype = {
     this.isHost = isHost;
     this.playingAs = side;
     this.opponents = opponents;
-    this.messages.joinRoom.text = 'Waiting for opponent...';
+    if (this.isHost) {
+      this.messages.joinRoom.text = 'Waiting for opponent...';
+    } else {
+      this.messages.joinRoom.text = '';
+    }
     window.socket.emit('acceptedInvite', {
       username: window.username,
       roomname: window.currentRoom,
@@ -405,7 +409,7 @@ mvpongState.prototype = {
     if (this.isHost && !this.isStarted && this.opponents && this.opponents[otherSide]) {
       this.messages.joinRoom.text = '';
       this.isStarted = true;
-      launchBall();
+      this.launchBall();
     }
   }
 
